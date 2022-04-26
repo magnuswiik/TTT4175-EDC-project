@@ -13,28 +13,26 @@ iris_target_predict = np.array(iris['target'])
 iris_target_train = sh.fix_target(np.array(iris['target']),iris_classes)
 
 def iris_train(data,target, start, stop, classes, features, error_margin):
-
     #Training variables
-    W = np.ones((classes.size,features.size +1)) #+1 for bias 
+    W = np.zeros((classes.size,features.size +1)) #+1 for bias 
     MSE = 10000
     prevMSE = 0
     grad_W_MSE = 0
-    alpha = 0.5#make a better alpha
+    alpha = error_margin*0.08#make a better alpha
     count = 0
     
-    while abs(MSE-prevMSE) > error_margin*0.0000001:
+    while abs(MSE-prevMSE) > error_margin:
         count +=1
         prevMSE = MSE
         MSE = 0
         #Dataset acces variables
         itt = 0
         skip_len = int(data.shape[0]/classes.size - (stop-start))
-       
         for i in range (0,classes.size*(stop-start)):
             if i%(stop-start) == 0 and i!=0:
                 itt+=1
             index = itt*skip_len + start + i
-            
+
             xk = np.reshape(data[index],(data[index].size,1))
             xk = np.append(xk,1)
             xk = np.reshape(xk,(xk.size,1))
@@ -45,19 +43,20 @@ def iris_train(data,target, start, stop, classes, features, error_margin):
             grad_W_MSE += sh.calculate_grad_W_MSE(gk,tk,xk) 
         #update W
         W -= alpha*grad_W_MSE
-        #print(MSE)
+        
+        print(MSE)
     print(W)
-    #print(count)
+    print(count)
     return W
 
 def iris_predict(data, W, start, stop, classes, target):
     #Dataset acces variables
     itt = 0
     skip_len = int(data.shape[0]/classes.size - (stop-start))
-
+  
+    pred_matrix = np.zeros(((stop-start)*classes.size,classes.size))
     confusion_matrix = np.zeros((classes.size,classes.size))
-    for i in range (0,classes.size*(stop-start)):
-
+    for i in range (0,classes.size*(stop-start)): 
         if i%(stop-start) == 0 and i!=0:
             itt+=1
         index = itt*skip_len + start+ i
@@ -69,9 +68,11 @@ def iris_predict(data, W, start, stop, classes, target):
         gk = np.matmul(W,xk)
 
         gk, guess = sh.make_percentage_guess(gk)
+        pred_matrix[i] = np.reshape(gk,(3,))
         confusion_matrix[target[index]][guess]+=1
-    return confusion_matrix
+    return confusion_matrix, pred_matrix
 
-W = iris_train(iris_data,iris_target_train, 0,30,iris_classes,iris_feature,0.01)
-confusion = iris_predict(iris_data,W,30,50,iris_classes,iris_target_predict)
+W = iris_train(iris_data,iris_target_train, 0,30,iris_classes,iris_feature,0.00001)
+confusion, pred = iris_predict(iris_data,W,30,50,iris_classes,iris_target_predict)
 print(confusion)
+print(pred[10])

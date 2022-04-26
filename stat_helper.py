@@ -11,6 +11,7 @@ def fix_target(target,classes):
     return new_target
 
 def sigmoid(x):
+    y = x
     for i in range (len(x)):
         x[i] = 1/(1+ np.exp(-x[i]))
     x = np.reshape(x,(x.size,1))
