@@ -1,0 +1,53 @@
+Taking 30 first as training and 20 last as testing:
+
+We tested 1000 different alphas with 1000 itterations of training each.
+The best alpha was 0.0061 with an testSetErrorRate of  3.33% and a trainingSetErrorRate of 3.33%.
+This tok 7 miniuts and 35 seconds to calculate
+It had these confusion matricies:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 28.  2.]
+ [ 0.  1. 29.]]
+
+We then tested the best alpha for 10**4, 10**5 and 10**6 itterations to see if it was better.
+This gave a [testSetErrorRate,trainingSetErrorRate] of [3.33%, 3.33%], [3.33%, 2.22%] and [3.33%, 2.22%], respectivly
+The time it tok to calculate was 5 seconds, 50 seconds and 7 min 59 seconds, respectivly.
+
+The 10**4 itterations case had these confusion matricies:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 28.  2.]
+ [ 0.  1. 29.]]
+
+
+The 10**5 itterations case had these confusion matricies:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 29.  1.]
+ [ 0.  1. 29.]]
+
+
+The 10**6 itterations case had these confusion matricies:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 19.  1.]
+ [ 0.  1. 19.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 29.  1.]
+ [ 0.  1. 29.]]
+
+
+At this alpha the minimum number of itterations to reach [3.33%, 3.33%] was 990

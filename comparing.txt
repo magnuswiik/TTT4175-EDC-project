@@ -1,0 +1,51 @@
+Using the alpha=0.0061 from 30_20 with the 20_30 gave these results
+
+At 10**3 itterations:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 19.  1.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 27.  3.]
+ [ 0.  2. 28.]]
+Error was:  [1.67%, 5.56%]
+
+
+At 10**4 itterations:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 20.  0.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 27.  3.]
+ [ 0.  5. 25.]]
+Error was:  [0%, 8.89%]
+
+
+
+Switching it up with alpha 0.0321 for the 30_20 gave:
+
+At 10**3 itterations:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  3. 17.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 28.  2.]
+ [ 0.  5. 25.]]
+Error was:  [8.33%, 7.78%]
+
+
+At 10**4 itterations:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  2. 18.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 28.  2.]
+ [ 0.  1. 29.]]
+Error was:  [6.67%, 3.33%]

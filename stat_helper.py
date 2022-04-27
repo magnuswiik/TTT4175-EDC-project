@@ -1,44 +1,20 @@
 import numpy as np
 
-def fix_target(target,classes):
-    new_target = np.zeros((1,len(classes)))
-    new_target = np.tile(new_target,(int(len(target)),classes.size))
-
-    print()
-
-    for i in range (len(target)):
-        new_target[i][target[i]] = 1
+def fix_target(target,n_classes):
+    n_target = len(target)
+    new_target = np.zeros((n_target,n_classes))
+    for i in range(n_target):
+        vector_target = np.zeros((1,n_classes))[0]
+        vector_target[target[i]]+=1
+        new_target[i]=vector_target
+    new_target = np.reshape(new_target,(len(target),n_classes))
     return new_target
 
-def sigmoid(x):
-    y = x
-    for i in range (len(x)):
-        x[i] = 1/(1+ np.exp(-x[i]))
-    x = np.reshape(x,(x.size,1))
-    return x
+def sigmoid(z):
+    return 1/(1+ np.exp(-z))
 
-def grad_gk_mse(gk, tk):
-    grad = gk-tk
-    #Muligens heller slik:
-    #grad = np.multiply((gk-tk,gk))
-    return grad
-
-def grad_zk_g(gk):
-    grad = np.multiply((1-gk),gk)
-    return grad
-
-#def grad_w_zk(x):
 def calculate_MSE(gk,tk):
     return 0.5*np.matmul((gk-tk).T,(gk-tk))
 
-def calculate_grad_W_MSE(gk, tk, xk):
-    return np.matmul((gk-tk)*gk*(1-gk),xk.T)
-
-def make_percentage_guess(gk):
-    total = np.sum(abs(gk))
-    largest = 0
-    for i in range (0,gk.size):
-        gk[i] = np.around(0.5*(1 - abs(gk[i])/total),2) # gk[i]/np.sum(gk) si how sure it is of not being correct
-        if gk[i] > gk[largest]:
-            largest = i
-    return gk, largest
+def calculate_grad_W_MSE(g, t, x):
+    return np.matmul(((g-t)*g*(1-g)).T,x)
