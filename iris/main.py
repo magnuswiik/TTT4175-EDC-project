@@ -1,11 +1,7 @@
-from operator import matmul
 from sklearn.datasets import load_iris
 import numpy as np
-from numpy import linalg as la
 import stat_helper as sh
-import typing as tp
 import datetime as dt
-import matplotlib.pyplot as plt
 
 
 iris = load_iris()
