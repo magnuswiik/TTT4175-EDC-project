@@ -5,6 +5,7 @@ import stat_helper as sh
 import typing as tp
 import datetime as dt
 import matplotlib.pyplot as plt
+import matplotlib.figure as matfig
 
 iris = load_iris()
 
@@ -101,9 +102,11 @@ def makeTrainingAndTestDataClass(data, target, trainingStart, trainingStop, clas
 def runIrisTask(alphaStart, n_alphas, n_trainingItterations, TTS, file):
     alpErrList = np.zeros((n_alphas,3))
     startTime = dt.datetime.now().replace(microsecond=0)
+    n_classes = len(TTS.trainingData)
+    n_features = len(TTS.trainingData[0][0])
     for i in range(n_alphas):
-        W = np.zeros((len(iris_classes), len(iris_feature)))
-        bias = np.zeros((len(iris_classes),))
+        W = np.zeros((n_classes, n_features))
+        bias = np.zeros((n_classes,))
         if n_alphas > 1:
             alphaStart+=1*10**(-4)
 
@@ -149,39 +152,89 @@ def histogram(TTS, features): #kunne droppet feature og brukt len(TTS.trainingDa
 
     return n_features
 
-def hist(data, features):
+def hist(data, features, classes, file = 0):
     histData = data.T
-    fig, axs = plt.subplots(2, 2)
-    fig.suptitle('Kuk og balle')
-    a = 0
-    b = 0
-    for f in range(len(features)):
-        for c in range(3):
-            classStr = "Class " + str(c)
-            axs[a, b].hist(histData[f][c*50:(c+1)*50], alpha=0.5, label=classStr)
-        axs[a, b].set_title(features[f])
-        if b == 1:
-            a = 1
-            b = 0
-        else:
-            b=1
-        #plt.xlabel('Length (cm)')
-        #plt.ylabel('Number of cases')
-        #plt.title(features[f])
-        ##plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
-        ##plt.xlim(3, 8)
-        ##plt.ylim(0, 25)
-        #plt.grid(True)
-    plt.show()
+    fig = plt.figure()
+    plt.suptitle('Histograms of the different features and classes', fontweight='bold')
     
+    featuresLeftToPlot = len(features)
+    for f in range(len(features)):
+        if featuresLeftToPlot>=2:
+            xdir = 2
+        else:
+            xdir = 1
+        plt.subplot(int(np.ceil(len(features)/2)), xdir, f+1)
+        for c in range(3):
+            plt.hist(histData[f][c*50:(c+1)*50], bins=30, alpha=0.5, label=classes[c])
+    
+        plt.title(features[f])
+        plt.legend(loc='upper right')
 
+    # Adding a plot in the figure which will encapsulate all the subplots with axis showing only
+    fig.add_subplot(1, 1, 1, frame_on=False)
+
+    # Hiding the axis ticks and tick labels of the bigger plot
+    plt.tick_params(labelcolor="none", bottom=False, left=False)
+
+    #Make common x- and y-labels
+    plt.xlabel('Length (cm)', fontweight='bold')
+    plt.ylabel('Occurrences', fontweight='bold')
+
+    if file != 0:
+        plt.savefig(file)
+
+    plt.show()
     return
 
-TTS = makeTrainingAndTestDataClass(iris_data, iris_target, 0, 30, 0, 50, 3)
-alpha = 0.0321
+def _removeFeature(data, features, featureToBeRemoved):
+    n_features = len(features)
+    newFeature = np.array([]) ##hard to preallocate string as you need to know the size, bad for efficiancy but whatever
+    n_data = len(data)
+    newData = np.array([[0.]*(n_features-1) for j in range(n_data)])
+    
+    j = 0 #ugly hack to get correct index for newFeature
+    for i in range(n_features):
+        if i%n_features != featureToBeRemoved:
+            newFeature = np.append(newFeature, features[i])
+            j+=1
 
-hist(iris_data,iris_feature)
-#runIrisTask(alpha,1, 1000, TTS,"dump.csv")
+    for i in range(n_data):
+        k = 0
+        for j in range(n_features):
+            if j%n_features != featureToBeRemoved:
+                newData[i][k] = data[i][j]
+                k+=1
+
+    return newData, newFeature
+
+def removeListOfFeatures(data, feature, featureRemoveList):
+    newData = data
+    newFeature = feature
+    for i in range(len(featureRemoveList)):
+        newIndex = np.where(newFeature == feature[i])[0][0]
+        newData, newFeature = _removeFeature(newData, newFeature, newIndex)
+
+    return newData, newFeature
+
+
+
+newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0]) #leave list empty to include all
+#hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
+TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
+alpha = 0.0001 
+runIrisTask(alpha,1000, 1000, TTS,"worsed_1_feature_removed.csv")
+
+newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0,1]) #leave list empty to include all
+#hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
+TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
+alpha = 0.0001 
+runIrisTask(alpha,1000, 1000, TTS,"worsed_2_feature_removed.csv")
+
+newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0,1,2]) #leave list empty to include all
+#hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
+TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
+alpha = 0.0001 
+runIrisTask(alpha,1000, 1000, TTS,"worsed_3_feature_removed.csv")
 ## god alpha 0.011, test 50 000 ganger
 # alpha_errorTest_errorTraining_30_20.csv has tested 1000 alphas trained 1000 itterations each
 #Best Alpha and Error was:  [0.0061 3.33   3.33  ]

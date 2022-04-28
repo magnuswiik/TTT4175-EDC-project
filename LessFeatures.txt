@@ -1,0 +1,118 @@
+Removing the worst feature as seen in the histogram (sepal width) we got the following results:
+
+At 10**3 itterations with alpha 0.0061:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  2. 18.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 25.  5.]
+ [ 0.  1. 29.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [6.67%, 6.67%]
+
+At 10**4 itterations:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  3. 17.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 26.  4.]
+ [ 0.  1. 29.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [8.33%, 5.56%]
+
+At 10**5 itterations:
+ConfusionMatrixTestSet: 
+ [[20.  0.  0.]
+ [ 0. 18.  2.]
+ [ 0.  2. 18.]]
+ConfusionMatrixTrainingSet: 
+ [[30.  0.  0.]
+ [ 0. 27.  3.]
+ [ 0.  1. 29.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [6.67%, 4.44%]
+
+Clearly the algorithm gets worse when removing a sepperation feature. Would be interesting to find an optimal alpha
+
+
+
+
+Removing the two worst features as seen in the histogram (sepal width, sepal length) we got the following results:
+
+At 10**3 itterations with alpha 0.0061:
+ConfusionMatrixTestSet: 
+ [[18.  1.  1.]
+ [ 0. 12.  8.]
+ [ 0.  3. 17.]]
+ConfusionMatrixTrainingSet: 
+ [[25.  5.  0.]
+ [ 1. 14. 15.]
+ [ 0.  6. 24.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [21.67%, 30%]
+
+At 10**4 itterations:
+ConfusionMatrixTestSet: 
+ [[18.  1.  1.]
+ [ 0. 17.  3.]
+ [ 1.  3. 16.]]
+ConfusionMatrixTrainingSet: 
+ [[26.  4.  0.]
+ [ 3. 16. 11.]
+ [ 0.  8. 22.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [15%, 28.89%]
+
+At 10**5 itterations:
+ConfusionMatrixTestSet: 
+ [[18.  1.  1.]
+ [ 0. 17.  3.]
+ [ 1.  3. 16.]]
+ConfusionMatrixTrainingSet: 
+ [[26.  4.  0.]
+ [ 3. 17. 10.]
+ [ 0.  8. 22.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [15%, 27.78%]
+
+
+
+
+
+Removing the three worst features as seen in the histogram (sepal width, sepal length, petal length) we got the following results:
+
+At 10**3 itterations with alpha 0.0061:
+ConfusionMatrixTestSet: 
+ [[ 0.  0. 20.]
+ [ 0.  0. 20.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[ 0.  0. 30.]
+ [ 0.  0. 30.]
+ [ 0.  0. 30.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [66.67%, 66.67%]
+
+At 10**4 itterations:
+ConfusionMatrixTestSet: 
+ [[ 0.  0. 20.]
+ [ 0.  0. 20.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[ 0.  0. 30.]
+ [ 0.  0. 30.]
+ [ 0.  0. 30.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [66.67%, 66.67%]
+
+At 10**5 itterations:
+ConfusionMatrixTestSet: 
+ [[ 0.  0. 20.]
+ [ 0.  0. 20.]
+ [ 0.  0. 20.]]
+ConfusionMatrixTrainingSet: 
+ [[ 0.  0. 30.]
+ [ 0.  0. 30.]
+ [ 0.  0. 30.]]
+ErrorRate [testSetErrorRate,trainingSetErrorRate] = [66.67%, 66.67%]
+
+
+
+
+
