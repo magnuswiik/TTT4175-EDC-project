@@ -1,11 +1,12 @@
 from operator import matmul
 from sklearn.datasets import load_iris
 import numpy as np
+from numpy import linalg as la
 import stat_helper as sh
 import typing as tp
 import datetime as dt
 import matplotlib.pyplot as plt
-import matplotlib.figure as matfig
+
 
 iris = load_iris()
 
@@ -21,23 +22,21 @@ def makePredictionMatrix(W, bias, x):
 
 def trainWMatrix(W, bias, TTS, alpha):
     n_classes = len(TTS.trainingData)
-    MSE = 0
     gradW_MSE = 0
     for c in range(n_classes):
         x = TTS.trainingData[c]
         t = TTS.trainingTarget[c]
         g = makePredictionMatrix(W, bias, x)
 
-        MSE += sh.calculate_MSE(g,t)
         gradW_MSE += sh.calculate_grad_W_MSE(g,t,x)
 
     W-=alpha*gradW_MSE
 
-    return W, bias, MSE
+    return W, bias
 
-def trainUntilSatisfactory(W,bias,TTS, alpha,itt):
+def trainUntilSatisfactory(W,bias,TTS, alpha, itt):
     for i in range(itt):
-        W, bias, MSE = trainWMatrix(W, bias, TTS, alpha)
+        W, bias = trainWMatrix(W, bias, TTS, alpha)
     return W, bias
 
 def makeConfusionMatricies(W, bias, TTS):
@@ -99,19 +98,19 @@ def makeTrainingAndTestDataClass(data, target, trainingStart, trainingStop, clas
         
     return TTS
 
-def runIrisTask(alphaStart, n_alphas, n_trainingItterations, TTS, file):
-    alpErrList = np.zeros((n_alphas,3))
+def runIrisTask(alphaStart, n_alphas, itt, TTS, file=0):
+    alpErrList = np.array([[0.]*3 for i in range(n_alphas)])
     startTime = dt.datetime.now().replace(microsecond=0)
     n_classes = len(TTS.trainingData)
     n_features = len(TTS.trainingData[0][0])
     for i in range(n_alphas):
-        W = np.zeros((n_classes, n_features))
-        bias = np.zeros((n_classes,))
         if n_alphas > 1:
             alphaStart+=1*10**(-4)
-
+        W = np.zeros((n_classes, n_features))
+        bias = np.zeros((n_classes,))
+    
         
-        W, bias = trainUntilSatisfactory(W, bias, TTS, alphaStart, n_trainingItterations)
+        W, bias = trainUntilSatisfactory(W, bias, TTS, alphaStart, itt)
 
         confusionMatrixTestSet, confusionMatrixTrainingSet = makeConfusionMatricies(W, bias, TTS)
         errorPercentTestSet = makePercentErrorRate(confusionMatrixTestSet)
@@ -132,25 +131,11 @@ def runIrisTask(alphaStart, n_alphas, n_trainingItterations, TTS, file):
         if alpErrList[i][1] < min:
             min = alpErrList[i][1]
             minitt = i
-    print("Best Alpha and Error was: ", alpErrList[minitt])
+    print("Best Alpha and ErrorMargin, with ErrorRates was: ", alpErrList[minitt])
     stopTime = dt.datetime.now().replace(microsecond=0)
     print("Time taken: ", stopTime-startTime)
-    np.savetxt(file, alpErrList, delimiter=",")
-
-def histogram(TTS, features): #kunne droppet feature og brukt len(TTS.trainingData[0][0]) for antall
-    n_features = len(features)
-    n_classes = len(TTS.testData)
-    n_training = len(TTS.trainingData[0])
-    n_test = len(TTS.testData[0])
-    featureList = np.zeros((n_features,n_classes*(n_training+n_test)))
-    for f in range(n_features):
-        for c in range(n_classes):
-            for i in range(n_training):
-                featureList[f][c*n_training + i] = TTS.trainingData[c][f]
-            for i in range(n_test):
-                featureList[f][c*n_training + i] = TTS.trainingData[c][f]
-
-    return n_features
+    if file != 0:
+        np.savetxt(file, alpErrList, delimiter=",")
 
 def hist(data, features, classes, file = 0):
     histData = data.T
@@ -217,24 +202,28 @@ def removeListOfFeatures(data, feature, featureRemoveList):
     return newData, newFeature
 
 
-
-newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0]) #leave list empty to include all
+alpha = 0.0075
+n_a = 1
+itt = 1000
+newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, []) #leave list empty to include all
 #hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
 TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
-alpha = 0.0001 
-runIrisTask(alpha,1000, 1000, TTS,"worsed_1_feature_removed.csv")
+runIrisTask(alpha,n_a, itt, TTS)
 
-newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0,1]) #leave list empty to include all
-#hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
-TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
-alpha = 0.0001 
-runIrisTask(alpha,1000, 1000, TTS,"worsed_2_feature_removed.csv")
-
-newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0,1,2]) #leave list empty to include all
-#hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
-TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
-alpha = 0.0001 
-runIrisTask(alpha,1000, 1000, TTS,"worsed_3_feature_removed.csv")
+#newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0]) #leave list empty to include all
+##hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
+#TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
+#runIrisTask(alpha,n_a, errorMargin,n_e, TTS,"ErrorMargin1.csv")
+#
+#newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0,1]) #leave list empty to include all
+##hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
+#TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
+#runIrisTask(alpha,n_a, errorMargin,n_e, TTS,"ErrorMargin2.csv")
+#
+#newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0,1,2]) #leave list empty to include all
+##hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
+#TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
+#runIrisTask(alpha,n_a, errorMargin,n_e, TTS,"ErrorMargin3.csv")
 ## god alpha 0.011, test 50 000 ganger
 # alpha_errorTest_errorTraining_30_20.csv has tested 1000 alphas trained 1000 itterations each
 #Best Alpha and Error was:  [0.0061 3.33   3.33  ]
