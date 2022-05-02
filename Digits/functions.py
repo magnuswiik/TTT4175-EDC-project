@@ -1,11 +1,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from math import sqrt
 from statistics import mode
 from sklearn.cluster import KMeans
 from tensorflow import keras
 from keras.datasets import mnist
 import datetime as dt
 
+
+def loadData(num_train_chunks, train_chunk):
+    (train_data, train_targets), (test_data, test_targets) = mnist.load_data()
+
+    train_data = np.asarray(train_data)
+    train_targets = np.asarray(train_targets)
+    test_data = np.asarray(test_data)
+    test_targets = np.asarray(test_targets)
+
+    num_train, dim_x, dim_y = train_data.shape
+    train_setx = train_data.reshape(num_train,dim_x*dim_x)
+
+    num_test, dim_testx, dim_testy = test_data.shape
+    test_data_reshaped = test_data.reshape(num_test,dim_testx*dim_testy)
+
+    train_data_split = np.asarray(np.split(train_setx,num_train_chunks))
+    train_targets_split = np.asarray(np.split(train_targets,num_train_chunks))
+
+    return train_data_split[train_chunk], train_targets_split[train_chunk], test_data_reshaped, test_targets
 
 # Clustering
 def sortClasses(memory_data, targets):
@@ -38,11 +58,8 @@ def clustering(memory_data, targets, M):
     print("Clustering time: ", time_end-time_start)
     return clusters.flatten().reshape(len(numb_classes)*64, 28*28)
 
-def eucDist(img1, img2 ):
-    img1 = np.reshape(img1, (img1.size,1))
-    img2 = np.reshape(img2, (img2.size,1))
-    dif = np.array(img1-img2)
-    distance = np.matmul(dif.T, dif)
+def eucDist(img1, img2):
+    distance = np.matmul((img1-img2).T, (img1-img2))
     return distance
 
 def KNNClustering(clusters, test_pic, M):
@@ -55,21 +72,21 @@ def KNNClustering(clusters, test_pic, M):
 
     return nearest_neighbor_index // 64
 
+def nearestNeighbors(train_data, train_targets, test_pic, num_neighbors):
+    distances = np.zeros((train_data.shape[0], 2))
+    for j in range(train_data.shape[0]):
+        distances[j][0] = int(train_targets[j])
+        #distances[j][1] = np.linalg.norm(test_pic-train_data[j],2) #euclidian distance
+        distances[j][1] = eucDist(train_data[j], test_pic)
 
-def nearestNeighbors(train, train_targets, test_pic, num_neighbors):
-    distances = [[0.]*2 for i in range(train.shape[0])]
-    for j in range(train.shape[0]): 
-        distances[j][0] = train_targets[j]
-        distances[j][1] = np.linalg.norm(test_pic-train[j]) #euclidian distance
-        #distances[j][1] = eucDist(train[j], test_pic) #np.linalg.norm(train[j]-test_pic)
-
-    distances.sort(key=lambda tup: tup[1]) 
+    #distances.sort(key=lambda tup: tup[1]) 
+    distances = distances[distances[:, 1].argsort()]
     nearest_neighbors = [distances[i][0] for i in range(num_neighbors)]
     return nearest_neighbors
 
 def KNN(nearest_neighbors):
-    #neighbors = nearestNeighbors(train, train_targets, test_pic, num_neighbors)
     prediction = mode(nearest_neighbors)
+    #prediction = np.argmin(nearest_neighbors)
 
     return prediction
 
