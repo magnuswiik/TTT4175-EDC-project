@@ -2,7 +2,26 @@ import numpy as np
 import functions as fnc
 import datetime as dt
 
-
+class Failed(object):
+    def __init__(self,preAllocLen,imgSize=28,nearestNeighbors=7):
+        self.len = 0
+        self.prediction = np.empty(preAllocLen)
+        self.target = np.empty(preAllocLen)
+        self.image = np.empty((preAllocLen,imgSize*imgSize))
+        self.contenders = np.empty((preAllocLen,nearestNeighbors))
+        
+    def Append(self, type, obj,index):
+        match type:
+            case "prediction":
+                self.prediction[index]=obj
+                self.len=self.len+1
+            case "target":
+                self.target[index]=obj
+            case "image":
+                self.image[index]=obj
+            case "contenders":
+                self.contenders[index]=obj
+        
 def main():
 
     # Load data
@@ -24,9 +43,8 @@ def main():
     #    prediction_cluster = fnc.KNNClustering(clusters, test_data[i], 64)
     #    guesses[i] = prediction_cluster
 
-    failures = np.zeros((test_data.shape))
-    failed_predictions = np.zeros(test_size)
-    failed_targets = np.zeros(test_size)
+
+    failed = Failed(5000)
 
     contenders = np.zeros((test_size,num_neighbors))
 
@@ -37,15 +55,20 @@ def main():
         test_pic = test_data[i]
         test_target = test_targets[i]
 
-        neighbors = fnc.nearestNeighbors(train_data, train_targets, test_pic, num_neighbors)
+        #neighbors = fnc.nearestNeighbors(train_data, train_targets, test_pic, num_neighbors)
+        neighbors = fnc.NN(train_data, train_targets, test_pic, num_neighbors)
         prediction = fnc.KNN(neighbors)
 
         predictions[i] = prediction
         if prediction != test_target:
-            failures[fail] = test_pic
-            failed_predictions[fail] = prediction
-            failed_targets[fail] = test_target
-            contenders[fail] = neighbors
+            failed.Append("prediction",prediction,fail)
+            failed.Append("target",test_target,fail)
+            failed.Append("image",test_pic,fail)
+            failed.Append("contenders",neighbors,fail)
+            #failures[fail] = test_pic
+            #failed_predictions[fail] = prediction
+            #failed_targets[fail] = test_target
+            #contenders[fail] = neighbors
             fail += 1
             print("fuck ",fail)
 
@@ -61,7 +84,7 @@ def main():
     print("Error rate: ", errorRate)
     print("Classification time: ", endTime-startTime)
 
-    fnc.plotImg(failures, failed_predictions, failed_targets, contenders)
+    fnc.plotImg(failed)
 
 main()
 

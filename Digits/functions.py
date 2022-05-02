@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from math import sqrt
 from statistics import mode
 from sklearn.cluster import KMeans
 from tensorflow import keras
@@ -17,7 +16,7 @@ def loadData(num_train_chunks, train_chunk):
     test_targets = np.asarray(test_targets)
 
     num_train, dim_x, dim_y = train_data.shape
-    train_setx = train_data.reshape(num_train,dim_x*dim_x)
+    train_setx = train_data.reshape(num_train,dim_x*dim_y)
 
     num_test, dim_testx, dim_testy = test_data.shape
     test_data_reshaped = test_data.reshape(num_test,dim_testx*dim_testy)
@@ -25,7 +24,7 @@ def loadData(num_train_chunks, train_chunk):
     train_data_split = np.asarray(np.split(train_setx,num_train_chunks))
     train_targets_split = np.asarray(np.split(train_targets,num_train_chunks))
 
-    return train_data_split[train_chunk], train_targets_split[train_chunk], test_data_reshaped, test_targets
+    return train_data_split[train_chunk], train_targets_split[train_chunk], test_data_reshaped[0:100], test_targets[0:100]
 
 # Clustering
 def sortClasses(memory_data, targets):
@@ -58,8 +57,15 @@ def clustering(memory_data, targets, M):
     print("Clustering time: ", time_end-time_start)
     return clusters.flatten().reshape(len(numb_classes)*64, 28*28)
 
+#KNN
 def eucDist(img1, img2):
-    distance = np.matmul((img1-img2).T, (img1-img2))
+    #img1 = np.reshape(img1,(img1.shape[0],1))
+    #img2 = np.reshape(img2,(img2.shape[0],1))
+    a = np.array(np.subtract(img1,img2),)
+    b = np.dot(a.T,a)
+    c = np.sqrt(b)
+    #distance = np.sqrt(np.matmul((img1-img2).T, (img1-img2)))[0][0]
+    distance = c
     return distance
 
 def KNNClustering(clusters, test_pic, M):
@@ -79,9 +85,10 @@ def nearestNeighbors(train_data, train_targets, test_pic, num_neighbors):
         #distances[j][1] = np.linalg.norm(test_pic-train_data[j],2) #euclidian distance
         distances[j][1] = eucDist(train_data[j], test_pic)
 
-    #distances.sort(key=lambda tup: tup[1]) 
-    distances = distances[distances[:, 1].argsort()]
-    nearest_neighbors = [distances[i][0] for i in range(num_neighbors)]
+    #distances = distances.sort(key=lambda tup: tup[1]) 
+    nearest = distances[distances[:, 1].argsort()]
+
+    nearest_neighbors = [nearest[i][0] for i in range(num_neighbors)]
     return nearest_neighbors
 
 def KNN(nearest_neighbors):
@@ -89,6 +96,18 @@ def KNN(nearest_neighbors):
     #prediction = np.argmin(nearest_neighbors)
 
     return prediction
+
+def NN(neighbors,targets,img,n_pred):
+    n_neighbors = neighbors.shape[0]
+    distances = [[.0,.0] for i in range(n_neighbors)]
+
+    for i in range(n_neighbors):
+        distances[i][0] = int(targets[i])
+        distances[i][1] = eucDist(neighbors[i],img)
+    distances.sort(key=lambda tup: tup[1])
+
+    nearest_neighbors = [distances[i][0] for i in range(n_pred)]
+    return nearest_neighbors
 
 def confusionMatrix(predictions, targets):
     confusionMatrix = np.zeros((10,10))
@@ -108,11 +127,11 @@ def errorRate(confusionMatrix, count):
                 fails += confusionMatrix[i][j]
     return np.round((fails/count)*100,2)
 
-def plotImg(images, predictions, targets, contenders):
-    for i in range(len(images)):
-        title = "Prediction: " + str(predictions[i]) + " But it was: " + str(targets[i])
+def plotImg(failed, imgSize=28):
+    for i in range(failed.len):
+        title = "Prediction: " + str(failed.prediction[i]) + " But it was: " + str(failed.target[i])
         plt.title(title)
-        plt.xlabel(str(contenders[i]))
-        plt.imshow(images[i])
+        plt.xlabel(str(failed.contenders[i]))
+        plt.imshow(np.reshape(failed.image[i],(imgSize,imgSize)))
         plt.show()
         input("Press for next pic")
