@@ -5,15 +5,16 @@ from sklearn.cluster import KMeans
 from tensorflow import keras
 from keras.datasets import mnist
 import datetime as dt
+from math import sqrt
 
 
-def loadData(num_train_chunks, train_chunk):
+def loadData(num_train_chunks, train_chunk, num_test_img):
     (train_data, train_targets), (test_data, test_targets) = mnist.load_data()
 
     train_data = np.asarray(train_data)
     train_targets = np.asarray(train_targets)
-    test_data = np.asarray(test_data)
-    test_targets = np.asarray(test_targets)
+    test_data = np.asarray(test_data)[0:min(num_test_img, len(test_data))]
+    test_targets = np.asarray(test_targets)[0:min(num_test_img, len(test_targets))]
 
     num_train, dim_x, dim_y = train_data.shape
     train_setx = train_data.reshape(num_train,dim_x*dim_y)
@@ -24,7 +25,7 @@ def loadData(num_train_chunks, train_chunk):
     train_data_split = np.asarray(np.split(train_setx,num_train_chunks))
     train_targets_split = np.asarray(np.split(train_targets,num_train_chunks))
 
-    return train_data_split[train_chunk], train_targets_split[train_chunk], test_data_reshaped[0:100], test_targets[0:100]
+    return train_data_split[train_chunk], train_targets_split[train_chunk], test_data_reshaped, test_targets
 
 # Clustering
 def sortClasses(memory_data, targets):
@@ -59,14 +60,7 @@ def clustering(memory_data, targets, M):
 
 #KNN
 def eucDist(img1, img2):
-    #img1 = np.reshape(img1,(img1.shape[0],1))
-    #img2 = np.reshape(img2,(img2.shape[0],1))
-    a = np.array(np.subtract(img1,img2),)
-    b = np.dot(a.T,a)
-    c = np.sqrt(b)
-    #distance = np.sqrt(np.matmul((img1-img2).T, (img1-img2)))[0][0]
-    distance = c
-    return distance
+    return sqrt(np.matmul((img1 - img2).T, (img1 - img2)))
 
 def KNNClustering(clusters, test_pic, M):
     flattened_pic = test_pic.flatten().reshape(1, 28*28)
@@ -78,36 +72,34 @@ def KNNClustering(clusters, test_pic, M):
 
     return nearest_neighbor_index // 64
 
-def nearestNeighbors(train_data, train_targets, test_pic, num_neighbors):
-    distances = np.zeros((train_data.shape[0], 2))
-    for j in range(train_data.shape[0]):
-        distances[j][0] = int(train_targets[j])
-        #distances[j][1] = np.linalg.norm(test_pic-train_data[j],2) #euclidian distance
-        distances[j][1] = eucDist(train_data[j], test_pic)
-
-    #distances = distances.sort(key=lambda tup: tup[1]) 
-    nearest = distances[distances[:, 1].argsort()]
-
-    nearest_neighbors = [nearest[i][0] for i in range(num_neighbors)]
-    return nearest_neighbors
-
-def KNN(nearest_neighbors):
-    prediction = mode(nearest_neighbors)
-    #prediction = np.argmin(nearest_neighbors)
-
-    return prediction
-
-def NN(neighbors,targets,img,n_pred):
-    n_neighbors = neighbors.shape[0]
-    distances = [[.0,.0] for i in range(n_neighbors)]
+def getNeighbors(neighbors,targets,img,k):
+    n_neighbors = len(neighbors)
+    distances = [None]*n_neighbors
 
     for i in range(n_neighbors):
-        distances[i][0] = int(targets[i])
-        distances[i][1] = eucDist(neighbors[i],img)
-    distances.sort(key=lambda tup: tup[1])
+        distance = np.linalg.norm(neighbors[i] - img, 2)#eucDist(neighbors[i], img)
+        distances[i] = (distance, neighbors[i], targets[i])
+    distances.sort(key=lambda tup: tup[0])
 
-    nearest_neighbors = [distances[i][0] for i in range(n_pred)]
-    return nearest_neighbors
+    neighbors = list()
+    for i in range(k):
+        neighbors.append((distances[i][1], distances[i][2]))
+    return neighbors
+
+def classify(train_data, train_targets, test_image, k):
+    neighbors = getNeighbors(train_data, train_targets, test_image, k)
+    nearest_neighbors = [row[-1] for row in neighbors]
+    prediction = mode(nearest_neighbors)
+    return prediction
+
+def KNN(train_data, train_targets, test_data, k):
+    num_predictions = len(test_data)
+    predictions = [None]*num_predictions
+    for i in range(num_predictions):
+        prediction = classify(train_data, train_targets, test_data[i], k)
+        predictions[i] = prediction
+
+    return predictions
 
 def confusionMatrix(predictions, targets):
     confusionMatrix = np.zeros((10,10))
