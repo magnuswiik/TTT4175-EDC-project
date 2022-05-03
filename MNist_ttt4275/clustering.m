@@ -3,7 +3,7 @@ function clusters = clustering(trainv, trainlab, digits, M)
     clusters = zeros(M*digits, 28*28);
     [sorted_trainlab, index] = sort(trainlab);
     sorted_trainv = zeros(size(trainv));
-    cluster_tags = repelem([0 1 2 3 4 5 6 7 8 9]', M);
+    cluster_labels = repelem([0 1 2 3 4 5 6 7 8 9]', M);
 
     for i = 1:length(trainv)
         sorted_trainv(i,:) = trainv(index(i),:);
