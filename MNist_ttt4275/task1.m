@@ -6,6 +6,10 @@ dataChuncks = chunckData(data_all,10);
 predsKort = KNN(dataChuncks(1),7);
 confMatKort = calculateConfusionMatrix(predsKort,dataChuncks(1).testlab);
 errorRateKort = calculateErrorRate(confMatKort);
+train_set = dataChuncks(1).trainv;
+train_label = dataChuncks(1).trainlab;
+test_set = dataChuncks(1).testv;
+preds = KNN(train_set, train_label, test_set, 7);
 
 %preds = KNN(data_all,7);
 %confMat = calculateConfusionMatrix(preds,data_all.testlab);
@@ -43,23 +47,5 @@ function dataChuncks = chunckData(data_all,n_chuncks)
         dataChuncks(i).trainlab=data_all.trainlab(startTrain:stopTrain);
         dataChuncks(i).testv=data_all.testv(startTest:stopTest,:);
         dataChuncks(i).testlab=data_all.testlab(startTest:stopTest);
-    end
-end
-function pred = NN(neighbors,targets,testImg,K)
-    distances = zeros(2,length(neighbors));
-    for n = 1:length(neighbors)
-        distances(1,n)=targets(n,1);
-        neighbor = neighbors(n,:);
-        distances(2,n)=norm(neighbor-testImg);
-    end
-    distances = sortrows(distances.',2).';
-    pred = mode(distances(1,1:K));
-end
-function predictions = KNN(data,K)
-    n_testImg = length(data.testv);
-    neighbors = data.trainv;
-    predictions = zeros(1,n_testImg);
-    for test = 1:n_testImg
-        predictions(1,test) = NN(neighbors,data.trainlab,data.testv(test,:),K);
     end
 end
