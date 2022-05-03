@@ -18,7 +18,7 @@ def calculate_MSE(gk,tk):
     return 0.5*np.matmul((gk-tk).T,(gk-tk))
 
 def calculate_grad_W_MSE(g, t, x):
-    return np.matmul(((g-t)*g*(1-g)).T,x)
+    return np.matmul(((g-t)*g*(1-g)).T,x.T)
 
 
 def _removeFeature(data, features, featureToBeRemoved):

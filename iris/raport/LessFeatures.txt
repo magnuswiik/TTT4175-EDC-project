@@ -1,3 +1,20 @@
+Bias var feil implementert
+Verste null fjernet 30 last:
+Best Alpha and ErrorMargin, with ErrorRates was:  [0.0382 0.     5.56  ]
+Verste null fjernet:
+Best Alpha and ErrorMargin, with ErrorRates was:  [0.0065 3.33   3.33  ]
+Verst en fjernet:
+Best Alpha and ErrorMargin, with ErrorRates was:  [3.70e-03 1.67e+00 4.44e+00]
+Verste to fjernet:
+Best Alpha and ErrorMargin, with ErrorRates was:  [0.0305 3.33   6.67  ]
+Verste tre fjernet:
+Best Alpha and ErrorMargin, with ErrorRates was:  [0.0136 6.67   4.44  ]
+
+
+
+
+
+
 Removing the worst feature as seen in the histogram (sepal width) we got the following results:
 
 At 10**3 itterations with alpha 0.0061:
