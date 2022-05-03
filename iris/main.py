@@ -142,25 +142,8 @@ def runIrisTask(alphaStart, n_alphas, itt, TTD, file=0):
 alpha = 0.00370
 n_a = 1
 itt = 1000
-#newData, newFeatures = sh.removeListOfFeatures(iris_data, iris_feature, [0,1,2]) #leave list empty to include all
-#sh.hist(newData,newFeatures,iris_classes) #add a file as last input if you want to save
-#TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
-#runIrisTask(alpha,n_a, itt, TTS)
 
-#newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0]) #leave list empty to include all
-##hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
-#TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
-#runIrisTask(alpha,n_a, errorMargin,n_e, TTS,"ErrorMargin1.csv")
-#
-#newData, newFeatures = removeListOfFeatures(iris_data, iris_feature, [0,1]) #leave list empty to include all
-##hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
-#TTS = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
-#runIrisTask(alpha,n_a, errorMargin,n_e, TTS,"ErrorMargin2.csv")
-#
 newData, newFeatures = sh.removeListOfFeatures(iris_data, iris_feature, [0]) #leave list empty to include all
-#sh.hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
+sh.hist(newData,newFeatures,iris_classes,"RemovedWorsedOneHist.png") #add a file as last input if you want to save
 TTD = makeTrainingAndTestDataClass(newData, iris_target, 0, 30, 0, 50, 3)
 runIrisTask(alpha,n_a, itt, TTD)
-## god alpha 0.011, test 50 000 ganger
-# alpha_errorTest_errorTraining_30_20.csv has tested 1000 alphas trained 1000 itterations each
-#Best Alpha and Error was:  [0.0061 3.33   3.33  ]

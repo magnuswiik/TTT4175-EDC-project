@@ -1,12 +1,7 @@
 import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
-#ConfusionMatrixTestSet: 
-# [[20.  0.  0.]
-# [ 0. 17.  3.]
-# [ 0.  0. 20.]]
-#ConfusionMatrixTrainingSet: 
-# 
+
 
 flowers = ["Predicted Setosa", "Predicted Versicolor","Predicted Virginic"]
 flowers2 = ["Actual Setosa", "Actual Versicolor","Actual Virginic"]
