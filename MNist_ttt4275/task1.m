@@ -1,28 +1,27 @@
 clear
 close all
 
-%% Fetch data
+% Fetch data
 load("data_all.mat")
 data_all = load("data_all.mat");
 
-%% Chunk data
+% Chunk data
 dataChunks = chunkData(data_all,1);
 train_set = dataChunks(1).trainv;
 train_label = dataChunks(1).trainlab;
 test_set = dataChunks(1).testv;
 test_lab = dataChunks(1).testlab;
 
-
-%% Make predictions
-
 startTime = clock;
 
+% Make predictions
 preds = KNN(train_set, train_label, test_set, 1);
+
 
 endTime = clock;
 timeTaken = endTime-startTime;
 
-%% Calculate confusion matrix and error rate
+% Calculate confusion matrix and error rate
 confMatKort = calculateConfusionMatrix(preds,dataChunks(1).testlab);
 errorRateKort = calculateErrorRate(confMatKort);
 confusionchart(confMatKort);
